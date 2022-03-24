@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
-class ExampleTestEzp extends DuskTestCase
+class checkBankAccount extends DuskTestCase
 {
     /**
      * A basic browser test example.
@@ -24,18 +24,22 @@ class ExampleTestEzp extends DuskTestCase
                     ->clickAtXPath("//input[@id='captcha']")
                     ->type('input#captcha','1111')
                     ->clickAtXPath('//input[@name="login"]')
-                    ->waitUntilMissing('login')
-                    ->waitForTextIn('div#navbar-right-top ul:nth-child(1) li.dropdown.dd-1 a.glyphicons.exit','Logout');
+                    ->waitUntilMissing('input[name="login"]')
+                    ->waitForTextIn('a.glyphicons.exit','Logout');
             }
         );
     }
 
-    public function checkBankAccountAdded(){
+    public function testCheckBankAccount(){
         $this->browse(function (Browser $browser){
             $browser->clickAtXPath('//a[@class="glyphicons calculator"]')
                     ->mouseover('li.dropdown.dd-1.open li.dropdown.submenu:nth-child(2)')
-                    ->clickLink('Bank Accounts')
-                    ->keys('input#textfield-1036-inputEl',['{enter}','HSB12345']);
+                    ->click('li.dropdown.dd-1.open li:nth-child(2) ul li:nth-child(3)')
+                    ->waitFor('a#addButton',1)
+                    ->type('div#filterBar-innerCt table:nth-of-type(3) td:nth-of-type(2) input','HSB12345')
+                    ->keys('div#filterBar-innerCt table:nth-of-type(3) td:nth-of-type(2) input',['{ENTER}',''],'')
+                    ->waitForTextIn('div#gridPagingToolbar-innerCt div:nth-of-type(7)','Displaying 1 - 1 of 1')
+                    ->pause(2000);
         }
     );
     }
