@@ -56,8 +56,9 @@ class checkBankAccount extends DuskTestCase
             echo 'ID of the Search Box: ' . $columnID . "\n";
 
             // indicate that particular Search Box based on the name of the column selected
-            $getouterHTMLBySearchBox = $browser->text(
-                'div#filterBar-innerCt table:nth-of-type('. $columnID .') td:nth-child(2) input');
+            $getouterHTMLBySearchBox = $browser->driverfindElement(
+                WebDriverBy::cssSelector
+                ('div#filterBar-innerCt table:nth-of-type('. $columnID .') td:nth-child(2) input'))->getAttribute('ID');
 
             // get int from ID based on Search Box
             echo '=========================================================================' . "\n";
