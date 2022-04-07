@@ -59,23 +59,17 @@ class checkBankAccount extends DuskTestCase
                             "City","Phone Number","Nation","Status","Swift Code","Sort Code","Card Id","Account Type",
                             "Username","Email","Login URL","Remark","Created By","Modified By","Created","Modified");
 
-            // scroll to the end of the right side
-            $browser->script("
-                var myDiv = document.getElementById('gridView');
-
-                setTimeout(function() {
-                    myDiv.scrollLeft = myDiv.scrollWidth;
-                }, 500);
-            ");
-
-            $inputDynamicID = 1010;
             $columnNameID = 1;
+            $arrayStoredAllColumns = array();
+            $disabledColumnCount = 2;
+            $inputColumnCount = 1;
 
         // 27 columns based on the array of the variable of $columns
         for($x=0;$x<count($columns);$x++){
             // preg match to get dynamic ID in digits only from column
             $patternGetDynamicID = '/[^0-9]/';
             $columnNameID = $columnNameID + 1;
+            $columnNameIDCounted = $columnNameID - 1;
 
             $getHTMLIDByColumnNameID[] = $browser->driver->findElement(
                 WebDriverBy::xpath(
@@ -97,37 +91,70 @@ class checkBankAccount extends DuskTestCase
 
             // get int from ID based on the column of the name selected
             echo "\n=========================================================================\n";
-            if (!empty($getIDByColumnName[$x])){
-                echo "Column Name($getIDByColumnName[$x]) saved!\n";
-                $tempDisplayedColumn[] = $getIDByColumnName[$x];
-            }elseif (empty($getIDByColumnName[$x])){
-                echo "Column Name($getIDByColumnName[$x]) NOT FOUND!!!\n";
-            }
+            // scroll to the end of the right side
+            $browser->script("
+                var myDiv = document.getElementById('gridView');
+
+                setTimeout(function() {
+                    myDiv.scrollLeft = myDiv.scrollWidth;
+                }, 300);
+            ");
             
-            echo "Column ID counted: ". $columnNameIDCounted = $columnNameID - 1 ."\n";
+            echo "Column ID counted: ". $columnNameIDCounted ."\n";
             echo "Column Name: ".$getIDByColumnName[$x] ."\n";
             echo "Raw Column ID: ". $getHTMLIDByColumnNameID[$x] ."\n";
-            echo "Raw Input ID + 1: ". $inputDynamicID++ ."\n";
 
-            // $inputColumnID[] = $browser->driver->findElement(WebDriverBy::xpath(
-            //     "//div[@id='filterBar']/child::div[@id='filterBar-innerCt']/child::div[@id='filterBar-targetEl']
-            //     /child::table[contains(normalize-space(@id),'triggerWrap') or starts-with(@id,'textfield') or 
-            //     starts-with(@id,'combobox') or starts-with(@id,'datetimerangefield')][".$x."]
-            //     //td[contains(normalize-space(@id),'inputCell') or contains(normalize-space(@id),'bodyEl')]
-            //     /input[contains(normalize-space(@id),'inputEl') and starts-with(@id,'textfield') or 
-            //     starts-with(@id,'combobox') or starts-with(@id,'datetimerangefield')]"))
-            //     ->getAttribute('ID');
+            // To detect disabled 2 input columns
+            if ($getIDByColumnName[$x] === $columns[24] || $getIDByColumnName[$x] === $columns[23]){
+                echo "$getIDByColumnName[$x] detected!\n";
+                $inputColumnID[] = $browser->driver->findElement(WebDriverBy::xpath("
+                                //div[@id='filterBar']/child::div[@id='filterBar-innerCt']/child::div[@id='filterBar-targetEl']
+                                /child::div[starts-with(@id,'component')][".$disabledColumnCount."]"))
+                                ->getAttribute('ID');
 
-            // echo "Input ID based on each column: $inputColumnID[$x] \n";
+                $disabledColumnCount++;
+                echo "Input ID based on each column: ". $inputColumnID[$x] ."\n";
+            }else{
+                $inputColumnID[] = $browser->driver->findElement(WebDriverBy::xpath(
+                    "//div[@id='filterBar']/child::div[@id='filterBar-innerCt']/child::div[@id='filterBar-targetEl']
+                    /child::table[contains(normalize-space(@id),'triggerWrap') or starts-with(@id,'textfield') or 
+                    starts-with(@id,'combobox') or starts-with(@id,'datetimerangefield')][".$inputColumnCount."]
+                    //td[contains(normalize-space(@id),'inputCell') or contains(normalize-space(@id),'bodyEl')]
+                    /input[contains(normalize-space(@id),'inputEl') and starts-with(@id,'textfield') or 
+                    starts-with(@id,'combobox') or starts-with(@id,'datetimerangefield')]"))
+                    ->getAttribute('ID');
+
+                $inputColumnCount++;
+                echo "Input ID based on each column: ". $inputColumnID[$x] ."\n";
+            }
+
             // echo "Raw Input ID: $getColumnNameDynamicID[$x] \n";
             // echo "Raw Input ID (calculated): $inputStaticID[$x] \n";
             echo "=========================================================================\n";
+            if (!empty($getIDByColumnName[$x])){
+                echo "Column Name($getIDByColumnName[$x]) saved!\n";
+
+                $arrayStoredAllColumns[] = array(
+                    "name" => $getIDByColumnName[$x],
+                    "number" => $columnNameIDCounted,
+                    "HTMLId" => $getHTMLIDByColumnNameID[$x],
+                    "InputId" => $inputColumnID[$x],
+                );
+            }elseif (empty($getIDByColumnName[$x])){
+                echo "Column Name($getIDByColumnName[$x]) NOT FOUND!!!\n";
             }
-        for($x=0;$x<count($tempDisplayedColumn);$x++){
-            echo $tempDisplayedColumn[$x]."\n";
+            }
+
+        $keys = array_keys($arrayStoredAllColumns);
+        for($i = 0; $i < count($arrayStoredAllColumns); $i++) {
+            echo $keys[$i] . "\n";
+            foreach($arrayStoredAllColumns[$keys[$i]] as $key => $value) {
+                echo $key . " : " . $value . "\n";
+            }
+            echo "\n";
         }
         echo "\n*********************************\n";
-        echo "Total visible columns found: ".count($tempDisplayedColumn)."\n";
+        echo "Total columns found from array: ".count($arrayStoredAllColumns)."\n";
         echo "*********************************\n";
     });
     }
