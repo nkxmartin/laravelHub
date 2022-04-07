@@ -40,7 +40,7 @@ class checkBankAccount extends DuskTestCase
                 if (strlen(trim($isDisplayedArrow)) > 0){
                     echo "\nArrow display?: Yes!\n";
                     $browser->clickAtXPath("//a[contains(normalize-space(@class),'arrow')]/parent::div[@id='navbar-dropdown-showmore']");
-                }elseif (strlen(trim($isDisplayedArrow)) == 0){
+                }elseif (strlen(trim($isDisplayedArrow)) === 0){
                     echo "\nArrow display?: NOTHING!\n";
                 }
 
@@ -112,7 +112,6 @@ class checkBankAccount extends DuskTestCase
                                 /child::div[starts-with(@id,'component')][".$disabledColumnCount."]"))
                                 ->getAttribute('ID');
 
-                $disabledColumnCount++;
                 echo "Input ID based on each column: ". $inputColumnID[$x] ."\n";
             }else{
                 $inputColumnID[] = $browser->driver->findElement(WebDriverBy::xpath(
@@ -124,22 +123,36 @@ class checkBankAccount extends DuskTestCase
                     starts-with(@id,'combobox') or starts-with(@id,'datetimerangefield')]"))
                     ->getAttribute('ID');
 
-                $inputColumnCount++;
                 echo "Input ID based on each column: ". $inputColumnID[$x] ."\n";
             }
 
             // echo "Raw Input ID: $getColumnNameDynamicID[$x] \n";
             // echo "Raw Input ID (calculated): $inputStaticID[$x] \n";
             echo "=========================================================================\n";
-            if (!empty($getIDByColumnName[$x])){
+            if (!empty($getIDByColumnName[$x]) && $getIDByColumnName[$x] !== $columns[24] && $getIDByColumnName[$x] !== $columns[23]){
                 echo "Column Name($getIDByColumnName[$x]) saved!\n";
 
                 $arrayStoredAllColumns[] = array(
                     "name" => $getIDByColumnName[$x],
-                    "number" => $columnNameIDCounted,
+                    "indexColumnID" => $columnNameID,
                     "HTMLId" => $getHTMLIDByColumnNameID[$x],
-                    "InputId" => $inputColumnID[$x],
+                    "indexInputID" => $inputColumnCount,
+                    "InputBoxId" => $inputColumnID[$x],
                 );
+
+                $inputColumnCount++;
+            }elseif (!empty($getIDByColumnName[$x]) && $getIDByColumnName[$x] === $columns[24] || $getIDByColumnName[$x] === $columns[23]){
+                echo "Column Name($getIDByColumnName[$x]) saved!\n";
+
+                $arrayStoredAllColumns[] = array(
+                    "name" => $getIDByColumnName[$x],
+                    "indexColumnID" => $columnNameID,
+                    "HTMLId" => $getHTMLIDByColumnNameID[$x],
+                    "indexInputID" => $disabledColumnCount,
+                    "InputBoxId" => $inputColumnID[$x],
+                );
+
+                $disabledColumnCount++;
             }elseif (empty($getIDByColumnName[$x])){
                 echo "Column Name($getIDByColumnName[$x]) NOT FOUND!!!\n";
             }
@@ -158,42 +171,4 @@ class checkBankAccount extends DuskTestCase
         echo "*********************************\n";
     });
     }
-
-    public function displayedSearchBox(){
-        $this->browse(function (Browser $browser){
-            // all of the text name of the columns
-            $columns = array("ID","Code","Alias Name","Type","Currency","Bank","Account No","Name","Usage",
-                            "Address","Province","City","Phone Number","Nation","Status","Swift Code","Sort Code","Card Id",
-                            "Account Type","Username","Email","Login URL","Remark","Created By","Modified By","Created","Modified");
-        // 27 columns based on the array of the variable of $columns
-        for($x=0;$x<count($columns);$x++){
-            $displayedColumns[] = $browser->driver->findElement(
-                WebDriverBy::xpath(
-                    "//div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'innerCt')]
-                    /div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'targetEl')]
-                    /child::div/child::div[contains(normalize-space(@id),'titleEl')]
-                    /child::span[contains(normalize-space(@id),'textEl') 
-                    and normalize-space(.)='".$columns[$x]."']"))
-                ->isDisplayed();
-            $displayedNameColumns[] = $browser->driver->findElement(
-                WebDriverBy::xpath(
-                    "//div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'innerCt')]
-                    /div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'targetEl')]
-                    /child::div/child::div[contains(normalize-space(@id),'titleEl')]
-                    /child::span[contains(normalize-space(@id),'textEl') 
-                    and normalize-space(.)='".$columns[$x]."']"))
-                ->getText();
-
-            echo "\nNo. of count: $x\n";
-            echo "Selected Column: $columns[$x]\n";
-            echo "Column Name: $displayedNameColumns[$x]\n";
-            echo "$displayedColumns[$x]\n";
-            if (strlen(trim($displayedColumns[$x])) > 0){
-                echo "Display?: Yes!\n";
-            }elseif (strlen(trim($displayedColumns[$x])) == 0){
-                echo "Display?: NOTHING!\n";
-            }
-            
-        }
-        });}
 }
