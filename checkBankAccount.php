@@ -68,9 +68,12 @@ class checkBankAccount extends DuskTestCase
         for($x=0;$x<count($columns);$x++){
             // preg match to get dynamic ID in digits only from column
             $patternGetDynamicID = '/[^0-9]/';
+            // number to find each ID 1 by 1
             $columnNameID = $columnNameID + 1;
+            // number to count each column search
             $columnNameIDCounted = $columnNameID - 1;
 
+            // to search and get ID from that element
             $getHTMLIDByColumnNameID[] = $browser->driver->findElement(
                 WebDriverBy::xpath(
                     "//div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'innerCt')]
@@ -78,6 +81,7 @@ class checkBankAccount extends DuskTestCase
                     /child::div[". $columnNameID ."]/child::div[contains(normalize-space(@id),'titleEl')]
                     /child::span[contains(normalize-space(@id),'textEl') and not(string-length()=1)]"))
                 ->getAttribute('ID');
+            // to search and get ID from that/those valid visible element
             $getIDByColumnName[] = $browser->driver->findElement(
                 WebDriverBy::xpath(
                     "//div[starts-with(normalize-space(@id),'headercontainer') and contains(normalize-space(@id),'innerCt')]
@@ -86,12 +90,7 @@ class checkBankAccount extends DuskTestCase
                     /child::span[contains(normalize-space(@id),'textEl') and not(string-length()=1)]"))
                 ->getText();
 
-            $getColumnNameDynamicID[] = intval(preg_replace($patternGetDynamicID,'',$getIDByColumnName[$x]));
-            $inputStaticID[] = intval($getColumnNameDynamicID[$x]) + 24;
-
-            // get int from ID based on the column of the name selected
-            echo "\n=========================================================================\n";
-            
+            echo "\n=========================================================================\n"; 
             echo "Column ID counted: ". $columnNameIDCounted ."\n";
             echo "Column Name: ".$getIDByColumnName[$x] ."\n";
             echo "Raw Column ID: ". $getHTMLIDByColumnNameID[$x] ."\n";
@@ -120,7 +119,7 @@ class checkBankAccount extends DuskTestCase
 
             echo "=========================================================================\n";
 
-            // To insert those visible columns into array
+            // To insert those valid visible columns into array
             if (!empty($getIDByColumnName[$x]) && $getIDByColumnName[$x] !== $columns[24] && $getIDByColumnName[$x] !== $columns[23]){
                 echo "Column Name($getIDByColumnName[$x]) saved!\n";
 
@@ -159,6 +158,7 @@ class checkBankAccount extends DuskTestCase
             }
             }
 
+        // to print out each array saved and how many were inside
         $keys = array_keys($arrayStoredAllColumns);
         for($i = 0; $i < count($arrayStoredAllColumns); $i++) {
             echo $keys[$i] . "\n";
