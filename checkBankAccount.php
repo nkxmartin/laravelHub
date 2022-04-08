@@ -91,20 +91,12 @@ class checkBankAccount extends DuskTestCase
 
             // get int from ID based on the column of the name selected
             echo "\n=========================================================================\n";
-            // scroll to the end of the right side
-            $browser->script("
-                var myDiv = document.getElementById('gridView');
-
-                setTimeout(function() {
-                    myDiv.scrollLeft = myDiv.scrollWidth;
-                }, 300);
-            ");
             
             echo "Column ID counted: ". $columnNameIDCounted ."\n";
             echo "Column Name: ".$getIDByColumnName[$x] ."\n";
             echo "Raw Column ID: ". $getHTMLIDByColumnNameID[$x] ."\n";
 
-            // To detect disabled 2 input columns
+            // To detect disabled 2 input columns and other input columns too
             if ($getIDByColumnName[$x] === $columns[24] || $getIDByColumnName[$x] === $columns[23]){
                 echo "$getIDByColumnName[$x] detected!\n";
                 $inputColumnID[] = $browser->driver->findElement(WebDriverBy::xpath("
@@ -126,9 +118,9 @@ class checkBankAccount extends DuskTestCase
                 echo "Input ID based on each column: ". $inputColumnID[$x] ."\n";
             }
 
-            // echo "Raw Input ID: $getColumnNameDynamicID[$x] \n";
-            // echo "Raw Input ID (calculated): $inputStaticID[$x] \n";
             echo "=========================================================================\n";
+
+            // To insert those visible columns into array
             if (!empty($getIDByColumnName[$x]) && $getIDByColumnName[$x] !== $columns[24] && $getIDByColumnName[$x] !== $columns[23]){
                 echo "Column Name($getIDByColumnName[$x]) saved!\n";
 
@@ -155,6 +147,15 @@ class checkBankAccount extends DuskTestCase
                 $disabledColumnCount++;
             }elseif (empty($getIDByColumnName[$x])){
                 echo "Column Name($getIDByColumnName[$x]) NOT FOUND!!!\n";
+
+                // scroll to the right side by pixel size
+                $browser->script("
+                    var myDiv = document.getElementById('gridView');
+
+                    setTimeout(function() {
+                        myDiv.scrollLeft += 100;
+                    }, 250);
+                ");
             }
             }
 
